@@ -1,84 +1,226 @@
-Luau ![CI](https://github.com/luau-lang/luau/actions/workflows/build.yml/badge.svg) [![codecov](https://codecov.io/gh/luau-lang/luau/branch/master/graph/badge.svg)](https://codecov.io/gh/luau-lang/luau)
-====
+# VLuau
 
-Luau (lowercase u, /ˈlu.aʊ/) is a fast, small, safe, gradually typed embeddable scripting language derived from [Lua](https://lua.org).
+**VLuau** is Voxelgia's implementation of the Luau programming language, developed and maintained by the Voxel Team for the Voxelgia game creation platform.
 
-It is designed to be backwards compatible with Lua 5.1, as well as incorporating [some features](https://luau.org/compatibility) from future Lua releases, but also expands the feature set (most notably with type annotations and a state-of-the-art type inference system). Luau is largely implemented from scratch, with the language runtime being a very heavily modified version of Lua 5.1 runtime, with completely rewritten interpreter and other [performance innovations](https://luau.org/performance). The runtime mostly preserves Lua 5.1 API, so existing bindings should be more or less compatible with a few caveats.
+VLuau is based on the official open-source [Luau](https://github.com/luau-lang/luau) programming language. It provides a fast, safe, gradually typed scripting environment designed for creating interactive experiences in Voxelgia.
 
-Luau is used by Roblox game developers to write game code, and by Roblox engineers to implement large parts of the user-facing application code as well as portions of the editor (Roblox Studio) as plugins. Roblox chose to open-source Luau to foster collaboration within the Roblox community as well as to allow other companies and communities to benefit from the ongoing language and runtime innovation. More recently, Luau has seen adoption in games like Alan Wake 2, Farming Simulator 2025, Second Life, and Warframe.
+VLuau replaces VXLua as Voxelgia's primary scripting language beginning with **Voxelgia 1.2.0 "Do More."**
 
-This repository hosts source code for the language implementation and associated tooling. Documentation for the language is available at https://luau.org/ and accepts contributions via [site repository](https://github.com/luau-lang/site); the language is evolved through RFCs that are located in [rfcs repository](https://github.com/luau-lang/rfcs).
+Unlike VXLua, VLuau uses the actual Luau compiler, virtual machine, and language implementation. This allows Voxelgia to benefit from upstream language improvements without independently recreating language functionality.
 
-# Usage
+## Overview
 
-Luau is an embeddable programming language, but it also comes with two command-line tools by default, `luau` and `luau-analyze`.
+VLuau is designed around three primary goals:
 
-`luau` is a command-line REPL and can also run input files. Note that REPL runs in a sandboxed environment and as such doesn't have access to the underlying file system except for ability to `require` modules.
+- **Compatibility:** Preserve Luau's syntax, language behavior, and supported standard libraries.
+- **Integration:** Provide direct access to Voxelgia's game objects, events, properties, and scripting APIs.
+- **Consistency:** Use a shared scripting architecture across single-player and multiplayer environments.
 
-`luau-analyze` is a command-line type checker and linter; given a set of input files, it produces errors/warnings according to the file configuration, which can be customized by using `--!` comments in the files or [`.luaurc`](https://rfcs.luau.org/config-luaurc) files. For details, please refer to our [type checking](https://luau.org/typecheck) and [linting](https://luau.org/lint) documentation. Our community maintains a language server frontend for `luau-analyze` called [luau-lsp](https://github.com/JohnnyMorganz/luau-lsp) for use with text editors.
+VLuau is not a new programming language or a recreation of Luau. It is an integration of the existing Luau language with Voxelgia-specific functionality.
 
-# Installation
+The underlying language is derived from Lua 5.1 and includes additional features such as type annotations, type inference, and performance improvements.
 
-You can install and run Luau by downloading the compiled binaries from [a recent release](https://github.com/luau-lang/luau/releases); note that `luau` and `luau-analyze` binaries from the archives will need to be added to PATH or copied to a directory like `/usr/local/bin` on Linux/macOS.
+For general language documentation, visit [luau.org](https://luau.org/).
 
-Alternatively, you can use one of the packaged distributions (note that these are not maintained by Luau development team):
+## VLuau and Voxelgia
 
-- macOS: [Install Homebrew](https://docs.brew.sh/Installation) and run `brew install luau`
-- Arch Linux: Luau has been added to the official Arch Linux packages repository under the extras repository (see [``luau``](https://archlinux.org/packages/extra/x86_64/luau/)), simply install using ``pacman``: ``pacman -Syu luau``
-- Alpine Linux: [Enable community repositories](https://wiki.alpinelinux.org/w/index.php?title=Enable_Community_Repository) and run `apk add luau`
-- Gentoo Linux: Luau is [officially packaged by Gentoo](https://packages.gentoo.org/packages/dev-lang/luau) and can be installed using `emerge dev-lang/luau`. You may have to unmask the package first before installing it (which can be done by including the `--autounmask=y` option in the `emerge` command).
+VLuau provides the scripting foundation for Voxelgia experiences.
 
-After installing, you will want to validate the installation was successful by running the test case [here](https://luau.org/getting-started).
+Scripts can interact with the game world through APIs provided by Voxelgia.
 
-## Building
+These APIs are responsible for connecting Luau code to the underlying Godot engine.
 
-On all platforms, you can use CMake to run the following commands to build Luau binaries from source:
+Planned and supported functionality may include:
+
+- Accessing and modifying game objects.
+- Reading and changing object properties.
+- Responding to events.
+- Working with players and characters.
+- Managing world interactions.
+- Executing functions and scheduled tasks.
+- Interacting with supported game services.
+
+The availability of individual APIs depends on the Voxelgia version and execution environment.
+
+VLuau does not automatically include Roblox's game APIs. Although both platforms use Luau, Voxelgia provides its own object model and engine bindings.
+
+## Execution environments
+
+VLuau is designed to provide consistent scripting behavior across Voxelgia's supported environments.
+
+### Single-player
+
+In single-player experiences, gameplay scripts execute locally.
+
+The client manages the local world and processes script-driven gameplay behavior.
+
+### Multiplayer
+
+In multiplayer experiences, authoritative gameplay scripts execute on the dedicated server.
+
+The server manages authoritative world state and replicates relevant changes to connected clients.
+
+This preserves Voxelgia's server-authoritative multiplayer architecture.
+
+### Shared runtime
+
+Both environments use the same underlying Luau language implementation and Voxelgia scripting interfaces.
+
+The objective is to minimize behavioral differences between single-player and multiplayer.
+
+Execution permissions and authority may differ between environments, but the underlying language behavior remains consistent.
+
+## Legacy Scripts
+
+Before VLuau, Voxelgia used a custom scripting language called VXLua.
+
+Beginning with Voxelgia 1.2.0, VXLua is classified as **Legacy Scripts**.
+
+Legacy Scripts remain available for compatibility with existing experiences.
+
+- Existing VXLua scripts continue functioning.
+- Creators can continue editing Legacy Scripts.
+- New Legacy Scripts can still be created.
+- Existing projects do not require conversion.
+- Legacy Scripts no longer receive regular feature updates.
+
+VLuau is recommended for all new scripting projects.
+
+Documentation for VXLua is maintained separately in the Legacy Scripts section of the Voxelgia documentation.
+
+## Architecture
+
+VLuau uses the official Luau compiler and virtual machine.
+
+The scripting system is integrated with Voxelgia through a shared runtime interface.
+
+The architecture consists of:
+
+| Component | Purpose |
+|---|---|
+| Luau Compiler | Compiles Luau source code into bytecode |
+| Luau VM | Executes compiled scripts |
+| Voxelgia Bindings | Connects scripts to game functionality |
+| Script Manager | Manages script loading and lifecycle |
+| Event System | Handles script events and callbacks |
+| Execution Context | Controls permissions and authority |
+| Legacy Runtime | Preserves compatibility with VXLua |
+
+VLuau uses native Luau execution rather than translating Luau code into GDScript or Python.
+
+## Building VLuau
+
+VLuau is based on the upstream Luau source code.
+
+The initial integration baseline is **Luau 0.746**.
+
+Luau is implemented primarily in C++ and uses CMake for building.
+
+### Requirements
+
+- CMake
+- A compatible C++ compiler
+- C++17 support for compiler and analysis components
+- Godot 4.6 development environment for Voxelgia integration
+
+### Building the upstream Luau tools
+
+From the Luau source directory:
 
 ```sh
-mkdir cmake && cd cmake
-cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
-cmake --build . --target Luau.Repl.CLI --config RelWithDebInfo
-cmake --build . --target Luau.Analyze.CLI --config RelWithDebInfo
+cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake --build build --target Luau.Repl.CLI --config RelWithDebInfo
+cmake --build build --target Luau.Analyze.CLI --config RelWithDebInfo
 ```
 
-Alternatively, on Linux and macOS, you can also use `make`:
+These commands build the upstream Luau command-line tools.
 
-```sh
-make config=release luau luau-analyze
-```
+They do not independently build the complete Voxelgia runtime integration.
 
-To integrate Luau into your CMake application projects as a library, at the minimum, you'll need to depend on `Luau.Compiler` and `Luau.VM` projects. From there you need to create a new Luau state (using Lua 5.x API such as `lua_newstate`), compile source to bytecode and load it into the VM like this:
+### Embedding Luau
 
-```cpp
-// needs lua.h and luacode.h
-size_t bytecodeSize = 0;
-char* bytecode = luau_compile(source, strlen(source), NULL, &bytecodeSize);
-int result = luau_load(L, chunkname, bytecode, bytecodeSize, 0);
-free(bytecode);
+The VLuau integration uses Luau's native embedding API.
 
-if (result == 0)
-    return 1; /* return chunk main function */
-```
+At minimum, an application embedding Luau typically requires:
 
-For more details about the use of the host API, see the [C API documentation](https://luau.org/api).
-Much of it is similar to the [Lua 5.x API](https://www.lua.org/manual/5.1/manual.html#3), but Luau has a few deviations, such as the need to compile source separately (which is important to be able to deploy VM without a compiler), and the lack of `__gc` support (use `lua_newuserdatadtor` instead).
+- `Luau.Compiler`
+- `Luau.VM`
 
-To gain advantage of many performance improvements, it's highly recommended to use the `safeenv` feature, which sandboxes individual scripts' global tables from each other, and protects builtin libraries from monkey-patching. For this to work, you must call `luaL_sandbox` on the global state and `luaL_sandboxthread` for each new script's execution thread.
+Source code is compiled into Luau bytecode and loaded into the VM for execution.
 
-# Testing
+For implementation details, see the [Luau C API documentation](https://luau.org/api).
 
-Luau has an internal test suite; in CMake builds, it is split into two targets, `Luau.UnitTest` (for the bytecode compiler and type checker/linter tests) and `Luau.Conformance` (for the VM tests). The unit tests are written in C++, whereas the conformance tests are largely written in Luau (see `tests/conformance`).
+## Security
 
-Makefile builds combine both into a single target that can be run via `make test`.
+VLuau is intended to execute user-authored scripts within controlled environments.
 
-# Dependencies
+The integration should use Luau's supported sandboxing mechanisms and restrict access to unsafe host functionality.
 
-Luau uses C++ as its implementation language. The runtime requires C++11, while the compiler and analysis components require C++17. It should build without issues using Microsoft Visual Studio 2017 or later, or gcc-7 or clang-7 or later.
+Security considerations include:
 
-Other than the STL/CRT, Luau library components don't have external dependencies. The test suite depends on the [doctest](https://github.com/onqtam/doctest) testing framework, and the REPL command-line depends on [isocline](https://github.com/daanx/isocline).
+- Isolated script environments.
+- Restricted operating-system access.
+- Controlled game API permissions.
+- Script execution limits.
+- Memory management.
+- Server-authoritative multiplayer execution.
+- Safe error handling.
 
-# License
+The Luau VM provides language-level sandboxing features, while Voxelgia is responsible for enforcing its own engine and multiplayer security boundaries.
 
-Luau implementation is distributed under the terms of [MIT License](https://github.com/luau-lang/luau/blob/master/LICENSE.txt). It is based on the Lua 5.x implementation, also under the MIT License.
+## Testing
 
-When Luau is integrated into external projects, we ask that you honor the license agreement and include Luau attribution into the user-facing product documentation. Attribution making use of the [Luau logo](https://github.com/luau-lang/site/blob/master/logo.svg) is also encouraged when reasonable.
+VLuau development should include testing for:
+
+- Language compatibility.
+- Script compilation and execution.
+- Engine API bindings.
+- Single-player behavior.
+- Multiplayer behavior.
+- Legacy Script compatibility.
+- Runtime stability.
+- Windows and macOS integration.
+- Dedicated server execution.
+
+The upstream Luau project provides its own compiler, analysis, and VM conformance test suites.
+
+Voxelgia-specific integrations require additional testing.
+
+## Compatibility with upstream Luau
+
+VLuau aims to remain compatible with the official Luau language.
+
+Voxelgia-specific functionality should be implemented primarily through host API bindings rather than unnecessary modifications to the language itself.
+
+This approach simplifies upstream updates and reduces maintenance requirements.
+
+Upstream Luau language changes are not automatically included in VLuau. They must be incorporated and tested against Voxelgia's integration.
+
+## Documentation
+
+- [Official Luau Documentation](https://luau.org/)
+- [Luau GitHub Repository](https://github.com/luau-lang/luau)
+- [Luau C API](https://luau.org/api)
+- [Luau Type Checking](https://luau.org/typecheck)
+- [Luau Compatibility](https://luau.org/compatibility)
+- [Luau RFCs](https://github.com/luau-lang/rfcs)
+
+Voxelgia-specific scripting documentation is provided through the Voxelgia developer documentation.
+
+## License and attribution
+
+VLuau is based on the open-source Luau programming language.
+
+Luau is developed by Roblox and its open-source contributors and is distributed under the **MIT License**.
+
+Luau itself is derived from Lua 5.x, which is also distributed under the MIT License.
+
+Voxelgia and the Voxel Team acknowledge the original Luau developers and contributors.
+
+The original Luau license and copyright notices must be preserved in distributions containing Luau source code or binaries, as required by the applicable license.
+
+Original project: https://github.com/luau-lang/luau
+
+Copyright and trademarks associated with Roblox and Luau remain the property of their respective owners.
+
+VLuau is an independent Voxelgia integration and is not an official Roblox product.
